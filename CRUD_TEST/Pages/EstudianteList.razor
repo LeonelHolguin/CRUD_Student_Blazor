@@ -1,0 +1,80 @@
+﻿@page "/"
+@inject IEstudianteService EstudianteService
+@inject NavigationManager NavigationManager
+
+
+<h1>Estudiante List</h1>
+@Message
+
+<button class="btn btn-success" @onclick="RedirectToInsert">New Estudiante</button>
+
+@if(Estudiantes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Promedio</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var estudiante in Estudiantes)
+            {
+                var urlEdit = $"/estudianteDetails/{estudiante.EstudianteId}";
+
+                <tr>
+                    <td>@estudiante.nombre</td>
+                    <td>@estudiante.apellido</td>
+                    <td>@estudiante.promedio</td>
+                    <td><button class="btn btn-outline-primary" @onclick="()=> RedirectToEdit(urlEdit)">Edit</button>
+                        <button class="btn btn-outline-danger" @onclick="()=> DeleteEstudiante(estudiante.EstudianteId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>  
+}
+
+@code {
+    public string Message { get; set; }
+
+    public IEnumerable<Estudiante> Estudiantes { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await obtenerEstudiantes();
+        } catch(Exception e)
+        {
+            Message = e.Message;
+        }
+    }
+
+    private void RedirectToInsert()
+    {
+        NavigationManager.NavigateTo("/estudianteDetails");
+    }
+
+    private void RedirectToEdit(string url)
+    {
+        NavigationManager.NavigateTo(url);
+    }
+
+    protected async Task DeleteEstudiante(int id)
+    {
+        await EstudianteService.DeleteEstudiante(id);
+        await obtenerEstudiantes();
+
+    }
+
+    protected async Task obtenerEstudiantes()
+    {
+        Estudiantes = await EstudianteService.GetAllEstudiante();
+    }
+}

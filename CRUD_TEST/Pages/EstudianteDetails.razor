@@ -1,0 +1,54 @@
+﻿@page "/estudianteDetails"
+@page "/estudianteDetails/{id:int}"
+@inject IEstudianteService EstudianteService
+@inject NavigationManager NavigationManager
+
+<h1>Estudiante Details</h1>
+
+<EditForm Model="@estudiante">
+    <table class="table"> 
+        <tr>
+            <td>Nombre: </td>
+            <td><input class="form-control col-sm-4"  type="text" required @bind="estudiante.nombre"/></td>
+        </tr>
+        <tr>
+            <td>Apellido: </td>
+            <td><input class="form-control col-sm-4" type="text" required @bind="estudiante.apellido" /></td>
+        </tr>
+        <tr>
+            <td>Promedio: </td>
+            <td><input class="form-control col-sm-4" type="number" required @bind="estudiante.promedio" /></td>
+        </tr>
+    </table>
+
+    <div style="display:flex; justify-content:center; gap:10px">
+        <button class="btn btn-success" type="submit" @onclick="saveEstudiante">Save</button>
+        <button class="btn btn-dark" type="submit" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Estudiante estudiante = new Estudiante();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(id != 0)
+        {
+            estudiante = await EstudianteService.GetEstudiante(id);
+        }
+    }
+
+    protected async Task saveEstudiante()
+    {
+        await EstudianteService.SaveEstudiante(estudiante);
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}
